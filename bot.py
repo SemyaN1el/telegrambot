@@ -5,6 +5,7 @@ import numpy as np
 import torch
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
+from aiogram.client.session.aiohttp import AiohttpSession
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 from dotenv import load_dotenv
 
@@ -13,6 +14,7 @@ load_dotenv()
 
 API_TOKEN = os.getenv('API_TOKEN')
 ADMIN_CHAT_ID = os.getenv('ADMIN_CHAT_ID')
+BOT_PROXY = os.getenv('BOT_PROXY')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,7 +61,11 @@ except Exception as e:
     tokenizer = None
     RUSSIAN_LABELS = ["Класс 1", "Класс 2", "Класс 3", "Класс 4", "Класс 5", "Класс 6"]
 
-bot = Bot(token=API_TOKEN)
+session = AiohttpSession(proxy=BOT_PROXY) if BOT_PROXY else None
+if BOT_PROXY:
+    logger.info("Используется прокси для Telegram Bot API")
+
+bot = Bot(token=API_TOKEN, session=session)
 dp = Dispatcher()
 
 TOXICITY_THRESHOLD = 0.5

@@ -386,12 +386,16 @@ pip install pandas matplotlib seaborn nltk scikit-learn tqdm wordcloud beautiful
 ```env
 API_TOKEN=your_telegram_bot_token
 ADMIN_CHAT_ID=123456789
+# опционально, если нужен прокси до Telegram API
+# BOT_PROXY=socks5://user:password@host:port
+# BOT_PROXY=http://user:password@host:port
 ```
 
 Где:
 
 - `API_TOKEN` - токен Telegram-бота от BotFather
 - `ADMIN_CHAT_ID` - ID чата, куда бот будет пересылать входящие сообщения
+- `BOT_PROXY` - необязательный прокси для доступа к `api.telegram.org`, если Telegram Bot API недоступен напрямую из вашей сети
 
 ### 6. Запуск
 
@@ -434,6 +438,34 @@ docker compose up --build -d
 - директория `my_roberta_model`
 
 Файл `.env` внутрь образа не копируется и передаётся только на этапе запуска контейнера.
+
+## Если бот не отвечает в Docker
+
+Проверьте логи:
+
+```bash
+docker compose logs -f
+```
+
+Если в логах есть ошибка вида:
+
+```text
+Cannot connect to host api.telegram.org:443
+```
+
+значит проблема не в модели и не в Docker-сборке, а в сетевом доступе к Telegram Bot API.
+
+Что делать:
+
+- запустить Docker при включённом VPN
+- использовать внешний сервер/VPS, где Telegram API доступен напрямую
+- указать `BOT_PROXY` в `.env`, если у вас есть рабочий HTTP или SOCKS прокси
+
+Пример:
+
+```env
+BOT_PROXY=socks5://127.0.0.1:1080
+```
 
 ## Пример ответа бота
 
